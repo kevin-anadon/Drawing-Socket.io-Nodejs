@@ -1,6 +1,6 @@
 const init = (event) => {
-  const leaveSpan = document.getElementById("leave");
-  leaveSpan.innerHTML = 0;
+  const leaveSpan = document.getElementById("usersLeave");
+  const connectedSpan = document.getElementById("usersConnected");
 
   let mouse = {
     click: false,
@@ -31,7 +31,15 @@ const init = (event) => {
     context.moveTo(line[0].x * width, line[0].y * height);
     context.lineTo(line[1].x * width, line[1].y * height);
     context.stroke();
-    console.log(line);
+  });
+
+  socket.on("leaved", (data) => {
+    console.log(data.leave);
+    leaveSpan.innerHTML = data.leave;
+  });
+
+  socket.on("connected", (data) => {
+    connectedSpan.innerHTML = data.users;
   });
 
   canvas.addEventListener("mousedown", (e) => {
@@ -49,12 +57,7 @@ const init = (event) => {
   });
 
   // recursive function
-
   const main = () => {
-    socket.on("leaves", (data) => {
-      leaveSpan = data.leave;
-    });
-
     if (mouse.click && mouse.move && mouse.prev_pos) {
       socket.emit("draw_line", {
         line: [mouse.pos, mouse.prev_pos],
@@ -64,7 +67,6 @@ const init = (event) => {
     mouse.prev_pos = { x: mouse.pos.x, y: mouse.pos.y };
     setTimeout(main, 25);
   };
-
   main();
 };
 
